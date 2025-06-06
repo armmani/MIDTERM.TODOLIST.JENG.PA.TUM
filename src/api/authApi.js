@@ -9,7 +9,7 @@ authApi.register = (input) => {
 }
 
 authApi.login = (input) => {
-  return
+  return axios.post(`${BASE_URL}/V1/auth/login`, input)
 }
 
 export default authApi;
