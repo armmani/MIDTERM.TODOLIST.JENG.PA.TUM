@@ -5,17 +5,26 @@ import * as Yup from "yup";
 import useTodoStore from "../stores/todoStore";
 import useAuthStore from "../stores/authStore";
 import { toast } from "react-toastify";
+import { useEffect } from "react";
+import { X } from "lucide-react";
 
 const initialInput = {
   taskName: "",
 };
 
 function TodoListPage() {
-  const actionCreateTodo = useTodoStore((state) => state.actionCreateTodo);
   const todos = useTodoStore((state) => state.todos);
-  const actionFetchTodo = useTodoStore((state) => state.actionFetchTodo);
-  
-  const token = useTodoStore((state) => state.accessToken);
+  const actionCreateTodo = useTodoStore((state) => state.actionCreateTodo);
+  const actionFetchTodos = useTodoStore((state) => state.actionFetchTodos);
+  const actionDelete = useTodoStore((state) => state.actionDelete);
+  const actionUpdate = useTodoStore((state) => state.actionUpdate);
+
+  const token = useAuthStore((state) => state.accessToken);
+  const userId = useAuthStore((state) => state.userId);
+
+  useEffect(() => {
+    actionFetchTodos(token);
+  }, []);
 
   const [input, setInput] = useState(initialInput);
   const [inputError, setInputError] = useState(initialInput);
@@ -24,7 +33,13 @@ function TodoListPage() {
     e.preventDefault();
     try {
       schemaTodo.validateSync(input, { abortEarly: false });
-      await actionCreateTodo(input, token);
+      const dataTodo = {
+        taskName: input.taskName,
+        userId: userId,
+      };
+      console.log(dataTodo);
+      await actionCreateTodo(dataTodo, token);
+      setInput(initialInput);
       toast.success("Create Task Success");
     } catch (error) {
       console.log(error);
@@ -35,19 +50,40 @@ function TodoListPage() {
           acc[cur.path] = cur.message;
           return acc;
         }, {});
-        setInputError();
+        setInputError(err);
       }
     }
   };
 
+  const handleUpdate = async (e, item) => {
+
+    const dataUpdate = {
+      taskName: item.taskName,
+      completed: e.target.checked
+    }
+    await actionUpdate(item.id, dataUpdate, token);
+  };
   return (
     <div className="grid place-items-center h-screen">
       <form onSubmit={handleSubmit}>
-        <input className="bg-blue-600" name="taskName" type="text" />
+        <input
+          onChange={(e) => setInput({ taskName: e.target.value })}
+          value={input.taskName}
+          className="bg-blue-600"
+          name="taskName"
+          type="text"
+        />
         {inputError.taskName && (
           <p className="text-red-500 text-xs">{inputError.taskName}</p>
         )}
       </form>
+      {todos.map((item) => (
+        <div className="bg-amber-800 flex" key={item.id}>
+          <input onChange={(e) => handleUpdate(e, item)} value={item.completed} type="checkbox" />
+          <p className={`${item.completed ? "line-through text-gray-400" : ""}`}>{item.taskName}</p>
+          <X onClick={() => actionDelete(item.id, token)} />
+        </div>
+      ))}
     </div>
   );
 }

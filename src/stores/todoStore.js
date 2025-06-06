@@ -9,9 +9,7 @@ const useTodoStore = create((set) => ({
   },
   actionCreateTodo: async (input, token) => {
     const res = await todoApi.createTodo(input, token);
-    set({
-      todos: (prev) => [res.data.todo, ...prev.todos],
-    });
+    set((prev) => ({todos:[...prev.todos,res.data.todo]}))
   },
   actionDelete: async (id, token) => {
     await todoApi.deleteTodo(id, token);
@@ -19,9 +17,7 @@ const useTodoStore = create((set) => ({
   },
   actionUpdate: async (id, input, token) => {
     const res = await todoApi.updateTodo(id, input, token);
-    set((prev) => ({
-      todos: prev.todos.map((item) => (item.id === id ? res.data.todo : item)),
-    }));
+    set((prev) => ({todos: prev.todos.map((item) => item.id === id ? res.data.todo : item)}));
   },
 }));
 
