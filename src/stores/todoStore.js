@@ -19,9 +19,7 @@ const useTodoStore = create((set) => ({
   },
   actionUpdate: async (id, input, token) => {
     const res = await todoApi.updateTodo(id, input, token);
-    set({
-      todos: (prev) => [res.data.todo, ...prev],
-    });
+    set((prev) => ({todos: prev.todos.map( item => item.id === id ? res.data.todo : item)}))
   },
 }));
 
