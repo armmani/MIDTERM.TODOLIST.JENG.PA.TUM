@@ -1,10 +1,10 @@
 import { ScanFace } from 'lucide-react'
-import React from 'react'
 import { useForm } from 'react-hook-form'
-import { Link } from 'react-router'
+import { Link, useNavigate } from 'react-router'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { schemaLogin } from '../validator/schemaInput'
 import { toast } from 'react-toastify'
+import useAuthStore from '../stores/authStore'
 
 
 const initialInput = {
@@ -14,6 +14,8 @@ const initialInput = {
 
 function LoginPage() {
 
+  const navigate = useNavigate()
+  const actionLogin = useAuthStore( state => state.actionLogin)
   const {
     register,
     handleSubmit,
@@ -28,7 +30,9 @@ function LoginPage() {
 
   const onSubmit = async (data) => {
     try {
-      reset()
+      await actionLogin(data)
+      reset();
+      navigate('/todo')
       toast.success("LOGIN SUCCESS")
     } catch (error) {
       console.log(error);
