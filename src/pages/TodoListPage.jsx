@@ -56,13 +56,18 @@ function TodoListPage() {
   };
 
   const handleUpdate = async (e, item) => {
-
+    try {
     const dataUpdate = {
       taskName: item.taskName,
       completed: e.target.checked
     }
     await actionUpdate(item.id, dataUpdate, token);
-  };
+    toast.success("UPDATE SUCCESS")
+  } catch (error) {
+    toast.error("UPDATE FAIL")
+    console.log(error)
+  }
+}
   return (
     <div className="grid place-items-center h-screen">
       <form onSubmit={handleSubmit}>
@@ -79,7 +84,7 @@ function TodoListPage() {
       </form>
       {todos.map((item) => (
         <div className="bg-amber-800 flex" key={item.id}>
-          <input onChange={(e) => handleUpdate(e, item)} value={item.completed} type="checkbox" />
+          <input onChange={(e) => handleUpdate(e, item)} type="checkbox" />
           <p className={`${item.completed ? "line-through text-gray-400" : ""}`}>{item.taskName}</p>
           <X onClick={() => actionDelete(item.id, token)} />
         </div>
