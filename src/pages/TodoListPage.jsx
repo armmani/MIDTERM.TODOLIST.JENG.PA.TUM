@@ -11,9 +11,11 @@ const initialInput = {
 };
 
 function TodoListPage() {
-
-  const actionCreateTodo = useTodoStore( state => state.actionCreateTodo)
-  const token = useAuthStore( state => state.accessToken)
+  const actionCreateTodo = useTodoStore((state) => state.actionCreateTodo);
+  const todos = useTodoStore((state) => state.todos);
+  const actionFetchTodo = useTodoStore((state) => state.actionFetchTodo);
+  
+  const token = useTodoStore((state) => state.accessToken);
 
   const [input, setInput] = useState(initialInput);
   const [inputError, setInputError] = useState(initialInput);
@@ -22,18 +24,18 @@ function TodoListPage() {
     e.preventDefault();
     try {
       schemaTodo.validateSync(input, { abortEarly: false });
-      await actionCreateTodo(input, token)
-      toast.success("Create Task Success")
+      await actionCreateTodo(input, token);
+      toast.success("Create Task Success");
     } catch (error) {
       console.log(error);
-      toast.error("Create Task Fail")
+      toast.error("Create Task Fail");
 
       if (error instanceof Yup.ValidationError) {
         const err = error.inner.reduce((acc, cur) => {
           acc[cur.path] = cur.message;
           return acc;
         }, {});
-        setInputError()
+        setInputError();
       }
     }
   };
